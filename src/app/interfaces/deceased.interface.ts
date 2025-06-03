@@ -1,4 +1,5 @@
 export interface IDeceased {
+    id: string;
     firstName: string;
     lastName: string;
     dateEntry: string;
@@ -9,5 +10,5 @@ export interface IDeceased {
     newDestination: string;
     room: string;
     imagenPerfil?: string;
-    religion: string;  
+    religion: string;
 }

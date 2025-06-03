@@ -12,12 +12,10 @@ import { IDeceased } from '../../interfaces/deceased.interface';
   styleUrl: './cartelera.component.scss'
 })
 export class CarteleraComponent implements OnInit {
-
-  router = inject(Router)
   data: any;
+  router = inject(Router)
 
-
- ngOnInit(): void {
+  ngOnInit(): void {
     const nav = this.router.getCurrentNavigation();
     this.data = nav?.extras?.state?.['data'] ?? history.state.data;
     console.log('Datos recibidos:', this.data);
@@ -32,5 +30,9 @@ export class CarteleraComponent implements OnInit {
   formatDate(fechaIso: string): string {
     const [year, month, day] = fechaIso.split('-');
     return `${day}/${month}/${year}`;
+  }
+
+  goToForm() {
+    this.router.navigate(['/form']);
   }
 }

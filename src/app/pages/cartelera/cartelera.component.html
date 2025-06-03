@@ -13,7 +13,7 @@
       @if(data.religion !== 'none'){
       <img [src]="getImgRoot(data.religion)" width="60" />
       }
-      <div class="text-center flex-fill p-5 d-flex flex-column align-items-center justify-content-center main-name">
+      <div class="text-center flex-fill p-5 d-flex flex-column align-items-center justify-content-center main-name" (click)="goToForm()">
         <h1 class="fw-bold color-white">{{ data.firstName }}</h1>
         <h1 class="fw-bold color-white">{{ data.lastName }}</h1>
       </div>

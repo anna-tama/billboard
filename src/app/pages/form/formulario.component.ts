@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { addDoc, collection } from 'firebase/firestore'; // Sigue importando las funciones de Firebase SDK normal
-import { Firestore } from '@angular/fire/firestore'; // ¡Importa Firestore desde @angular/fire/firestore!
+import { doc, Firestore, updateDoc } from '@angular/fire/firestore'; // ¡Importa Firestore desde @angular/fire/firestore!
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, Storage } from '@angular/fire/storage';
 import { RELIGIONS } from '../../constants/religions';
 import { ROOMS } from '../../constants/rooms';
@@ -25,7 +25,7 @@ export class FormularioComponent implements OnInit {
   form!: FormGroup;
   showOtherDestination = false;
   showAlert: boolean = false;
-  title: string = 'Registro Nuevo';  
+  title: string = '';
   destinations: any[] = DESTINATIONS;
   religions: any[] = RELIGIONS;
   rooms: any[] = ROOMS;
@@ -35,11 +35,21 @@ export class FormularioComponent implements OnInit {
   firestore = inject(Firestore);
   // storage = inject(Storage);
 
+  data: any;
 
   constructor() { }
 
   ngOnInit(): void {
+    const nav = this.router.getCurrentNavigation();
+    this.data = nav?.extras?.state?.['data'] ?? history.state.data;
+    if (this.data) {
+      console.log('Datos recibidos:', this.data);
+      this.title = 'Editar Registro';
+    } else {
+      this.title = 'Nuevo Registro';
+    }
     this.formBuild();
+
   }
 
   formBuild() {
@@ -47,17 +57,17 @@ export class FormularioComponent implements OnInit {
     const currentTime = this.getFormattedTime();
 
     this.form = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      dateEntry: [currentDate, Validators.required],
-      timeEntry: [currentTime, Validators.required],
-      dateDeparture: [currentDate, Validators.required],
-      timeDeparture: [currentTime, Validators.required],
-      destination: [DESTINATIONS[0].label, Validators.required],
+      firstName: [this.data ? this.data.firstName : '', Validators.required],
+      lastName: [this.data ? this.data.lastName : '', Validators.required],
+      dateEntry: [this.data ? this.data.dateEntry : currentDate, Validators.required],
+      timeEntry: [this.data ? this.data.timeEntry : currentTime, Validators.required],
+      dateDeparture: [this.data ? this.data.dateDeparture : currentDate, Validators.required],
+      timeDeparture: [this.data ? this.data.timeDeparture : currentTime, Validators.required],
+      destination: [this.data ? this.data.destination : DESTINATIONS[0].label, Validators.required],
       newDestination: [''],
-      room: [ROOMS[0].label, Validators.required],
+      room: [this.data ? this.data.room : ROOMS[0].label, Validators.required],
       imagenPerfil: [''],
-      religion: [RELIGIONS[0].value, Validators.required],
+      religion: [this.data ? this.data.religion : RELIGIONS[0].value, Validators.required],
     });
   }
 
@@ -72,11 +82,26 @@ export class FormularioComponent implements OnInit {
     }
   }
 
-  async enviar() {
-    if (this.form.valid) {
+  async send() {
+    if (this.form.valid && this.data) {
+      console.log('actualizar registro')
+      await updateDoc(doc(this.firestore, 'users', this.data.id), {
+        firstName: this.form.value.firstName,
+        lastName: this.form.value.lastName,
+        dateEntry: this.form.value.dateEntry,
+        timeEntry: this.form.value.timeEntry,
+        dateDeparture: this.form.value.dateDeparture,
+        timeDeparture: this.form.value.timeDeparture,
+        destination: this.form.value.destination,
+        room: this.form.value.room,
+        imagenPerfil: this.form.value.imagenPerfil,
+        religion: this.form.value.religion,
+      });
+      this.showAlertMessage('Editado correctamente')
+
+    } else if (this.form.valid) {
       try {
-        console.log('try')
-        this.showAlertMessage('Agregado correctamente')
+        console.log('nuevo registro')
 
         const docRef = await addDoc(collection(this.firestore, "users"), {
           firstName: this.form.value.firstName,
@@ -90,13 +115,19 @@ export class FormularioComponent implements OnInit {
           imagenPerfil: this.form.value.imagenPerfil,
           religion: this.form.value.religion,
         });
-        // this.uploadFile();
-        console.log('docRef',docRef)
 
-        this.formBuild();
+        await updateDoc(doc(this.firestore, 'users', docRef.id), {
+          id: docRef.id
+        });
+        this.showAlertMessage('Agregado correctamente')
+
+        // this.uploadFile();
       } catch (e) {
         console.error("Error al añadir documento: ", e);
       }
+    }
+    else {
+      this.showAlertMessage('Todos los campos son obligatorios');
     }
   }
 
@@ -107,7 +138,8 @@ export class FormularioComponent implements OnInit {
     // Ocultar automáticamente después de 3 segundos
     setTimeout(() => {
       this.showAlert = false;
-    }, 3000);
+      this.formBuild();
+    }, 2500);
   }
 
   // async uploadFile() {

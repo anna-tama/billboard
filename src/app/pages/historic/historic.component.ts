@@ -4,8 +4,13 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IDeceased } from '../../interfaces/deceased.interface';
 import { Observable } from 'rxjs';
-import { Firestore, collectionData,collection } from '@angular/fire/firestore'; // ¡Importa Firestore desde @angular/fire/firestore!
-
+import {
+  Firestore,
+  collectionData,
+  collection,
+  doc,
+  deleteDoc
+} from '@angular/fire/firestore';
 @Component({
   selector: 'app-historic',
   standalone: true,
@@ -40,4 +45,24 @@ export class HistoricComponent implements OnInit {
   goToForm(){
      this.router.navigate(['/form']);
   }
+
+ editUser(item: IDeceased) {
+    this.router.navigate(['/form'], {
+      state: { data: item } 
+    });
+  }
+
+   async deleteRecord(id: string) {
+    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este registro?');
+    if (!confirmDelete) return;
+
+    try {
+      const userDocRef = doc(this.firestore, 'users', id);
+      await deleteDoc(userDocRef);
+      console.log(`Registro ${id} eliminado correctamente`);
+    } catch (error) {
+      console.error('Error eliminando el registro:', error);
+    }
+  }
+
 }

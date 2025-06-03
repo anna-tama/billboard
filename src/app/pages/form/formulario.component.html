@@ -10,7 +10,7 @@
                 (click)="verHistorial()" />
             </div>
 
-            <form [formGroup]="form" (ngSubmit)="enviar()">
+            <form [formGroup]="form" (ngSubmit)="send()">
 
               <div class="row">
                 <div class="col-md-6 mb-3">
@@ -133,7 +133,7 @@
               </div>
 
               <div class="mt-4 pt-2 d-flex align-items-center justify-content-between">
-                <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="submit" value="Enviar"
+                <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="submit" [value]="this.data ? 'Editar' : 'Enviar'"
                   [disabled]="form.invalid" />
                 @if(showAlert){
                 <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
