@@ -2,7 +2,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IDeceased } from '../../interfaces/deceased.interface';
+import { User } from '../../interfaces/user.interface';
 import { Observable } from 'rxjs';
 import {
   Firestore,
@@ -11,6 +11,9 @@ import {
   doc,
   deleteDoc
 } from '@angular/fire/firestore';
+import { MatDialog } from '@angular/material/dialog';
+import { GenericModalComponent } from '../../modals/generic-modal/generic-modal.component';
+
 @Component({
   selector: 'app-historic',
   standalone: true,
@@ -19,50 +22,54 @@ import {
   styleUrl: './historic.component.scss'
 })
 export class HistoricComponent implements OnInit {
+  data: User[] | undefined = [];
 
-  data: IDeceased[] | undefined = [];
-
-  router = inject(Router)
-  firestore = inject(Firestore);
   users$: Observable<any[]> | undefined;
+
+  firestore = inject(Firestore);
+  router = inject(Router)
+  dialog = inject(MatDialog);
 
   ngOnInit(): void {
     this.users$ = collectionData(collection(this.firestore, "users"), { idField: 'id' }) as Observable<any[]>;
     this.users$.subscribe(data => {
       this.data = data;
-      console.log('Actualización de usuarios en tiempo real:', data);
     });
   }
 
-  goToBillboard(item: IDeceased) {
-    this.router.navigate(['/cartelera'], {
+  goToBillboard(item: User) {
+    this.router.navigate(['/billboard'], {
       state: {
         data: item
       }
     });
   }
 
-  goToForm(){
-     this.router.navigate(['/form']);
+  goToForm() {
+    this.router.navigate(['/form']);
   }
 
- editUser(item: IDeceased) {
+  editUser(item: User) {
     this.router.navigate(['/form'], {
-      state: { data: item } 
+      state: { data: item }
     });
   }
 
-   async deleteRecord(id: string) {
-    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este registro?');
-    if (!confirmDelete) return;
+  async deleteRecord(id: string) {
+    const dialogRef = this.dialog.open(GenericModalComponent, {
+      width: '400px',
+      data: { mensaje: 'Hola desde el modal' },
+    });
 
-    try {
-      const userDocRef = doc(this.firestore, 'users', id);
-      await deleteDoc(userDocRef);
-      console.log(`Registro ${id} eliminado correctamente`);
-    } catch (error) {
-      console.error('Error eliminando el registro:', error);
-    }
+    dialogRef.afterClosed().subscribe(async resultado => {
+      if (resultado) {
+        try {
+          const userDocRef = doc(this.firestore, 'users', id);
+          await deleteDoc(userDocRef);
+        } catch (error) {
+          console.error('Error eliminando el registro:', error);
+        }
+      }
+    });
   }
-
 }

@@ -1,4 +1,4 @@
-export interface IDeceased {
+export interface User {
     id: string;
     firstName: string;
     lastName: string;

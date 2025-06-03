@@ -7,7 +7,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3 pb-2">
               <h3 class=" pb-md-0 ">{{title}}</h3>
               <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="button" value="Historial"
-                (click)="verHistorial()" />
+                (click)="goToHistoric()" />
             </div>
 
             <form [formGroup]="form" (ngSubmit)="send()">
@@ -105,7 +105,7 @@
                 <div class="col-12">
 
                   <label class="form-label select-label">Destino</label>
-                  <select class="form-select" formControlName="destination" (change)="onDestinoChange()">
+                  <select class="form-select" formControlName="destination" (change)="onDestinationChange()">
                     <option *ngFor="let destination of destinations" [value]="destination.label">
                       {{ destination.label }}
                     </option>
@@ -117,12 +117,12 @@
                   <label for="newDestination" class="form-label">Nuevo destino</label>
                   <input id="newDestination" type="text" class="form-control" [formControl]="newDestinationControl"
                     placeholder="Ingrese nuevo destino" />
-                  <button class="btn btn-sm btn-primary mt-2" type="button" (click)="agregarNuevoDestino()">
+                  <button class="btn btn-sm btn-primary mt-2" type="button" (click)="addNewDestination()">
                     Agregar destino
                   </button>
                 </div>
               </div>
-
+              <!-- 
               <div class="row">
                 <div class="col-12">
                   <div class="col-md-6">
@@ -130,11 +130,11 @@
                     <input type="file" class="form-control" (change)="onFileChange($event, 'imagenPerfil')" />
                   </div>
                 </div>
-              </div>
+              </div> -->
 
               <div class="mt-4 pt-2 d-flex align-items-center justify-content-between">
-                <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="submit" [value]="this.data ? 'Editar' : 'Enviar'"
-                  [disabled]="form.invalid" />
+                <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="submit"
+                  [value]="this.data ? 'Editar' : 'Enviar'" [disabled]="form.invalid" />
                 @if(showAlert){
                 <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
                   {{ alertMessage }}

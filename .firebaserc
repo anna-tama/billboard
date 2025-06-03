@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "billboard-65503"
-  }
+    "default": "billboard-65503",
+    "billboard": "billboard-65503"
+  },
+  "targets": {},
+  "etags": {}
 }

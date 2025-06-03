@@ -2,16 +2,15 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IDeceased } from '../../interfaces/deceased.interface';
 
 @Component({
-  selector: 'app-cartelera',
+  selector: 'app-billboard',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './cartelera.component.html',
-  styleUrl: './cartelera.component.scss'
+  templateUrl: './billboard.component.html',
+  styleUrl: './billboard.component.scss'
 })
-export class CarteleraComponent implements OnInit {
+export class BillboardComponent implements OnInit {
   data: any;
   router = inject(Router)
 

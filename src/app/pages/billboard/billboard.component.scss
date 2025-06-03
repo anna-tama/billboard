@@ -6,7 +6,6 @@
   background-position: center;
 }
 
-/* Imagen recortada con forma similar a la púrpura */
 .custom-shaped-image {
   width: 300px;
   height: auto;
@@ -16,23 +15,18 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
+.fixed-bottom-center {
+  position: fixed;
+  bottom: 20px; 
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050; 
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 .font-dv {
   font-family: "Luxurious Script", cursive;
   font-weight: 500;
   font-style: normal;
 }
-
-// .main-name {
-//   background-color: rgb(255, 255, 255);
-//   border-radius: 10px;
-//   margin: 15% 0;
-// }
-
-.color-white {
-  color: white;
-}
-
-.mauro{
-  padding-top: 26% ;
-}
-
