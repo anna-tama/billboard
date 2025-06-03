@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, FormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
+import { addDoc, collection } from 'firebase/firestore'; // Sigue importando las funciones de Firebase SDK normal
+import { Firestore } from '@angular/fire/firestore'; // ¡Importa Firestore desde @angular/fire/firestore!
 
 @Component({
   selector: 'app-formulario',
@@ -61,6 +64,8 @@ export class FormularioComponent implements OnInit {
 
   router = inject(Router)
   fb = inject(FormBuilder)
+  firestore = inject(Firestore);
+  users$: Observable<any[]> | undefined;
 
   constructor() { }
 
@@ -98,15 +103,25 @@ export class FormularioComponent implements OnInit {
     }
   }
 
-  enviar() {
-    console.log('enviar', this.form.value);
-    console.log(localStorage.length)
-
+  async enviar() {
     if (this.form.valid) {
-      localStorage.setItem((localStorage.length + 1).toString(), JSON.stringify(this.form.value));
-      // this.router.navigate(['/cartelera'], {
-      //   state: { data: this.form.value }
-      // });
+      try {
+        const docRef = await addDoc(collection(this.firestore, "users"), {
+          firstName: this.form.value.firstName,
+          lastName: this.form.value.lastName,
+          dateEntry: this.form.value.dateEntry,
+          timeEntry: this.form.value.timeEntry,
+          dateDeparture: this.form.value.dateDeparture,
+          timeDeparture: this.form.value.timeDeparture,
+          destination: this.form.value.destination,
+          room: this.form.value.room,
+          imagenPerfil: this.form.value.imagenPerfil,
+          religion: this.form.value.religion,
+        });
+        this.formBuild();
+      } catch (e) {
+        console.error("Error al añadir documento: ", e);
+      }
     }
   }
 
@@ -123,7 +138,6 @@ export class FormularioComponent implements OnInit {
   agregarNuevoDestino(): void {
     const nuevoLabel = this.form.get('newDestination')?.value?.trim();
     if (!nuevoLabel) return;
-
 
     // Agregar al array
     this.destinations.push({
@@ -157,6 +171,6 @@ export class FormularioComponent implements OnInit {
   }
 
   verHistorial() {
-  this.router.navigate(['/historic']);
-}
+    this.router.navigate(['/historic']);
+  }
 }
