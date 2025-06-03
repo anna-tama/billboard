@@ -5,11 +5,11 @@
         <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
           <div class="card-body p-4 px-md-5">
             <div class="d-flex justify-content-between align-items-center mb-3 pb-2">
-               <h3 class=" pb-md-0 ">Registro Nuevo</h3>
-                <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="button" value="Historial" (click)="verHistorial()"
-                  />
+              <h3 class=" pb-md-0 ">{{title}}</h3>
+              <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="button" value="Historial"
+                (click)="verHistorial()" />
             </div>
-                       
+
             <form [formGroup]="form" (ngSubmit)="enviar()">
 
               <div class="row">
@@ -132,9 +132,15 @@
                 </div>
               </div>
 
-              <div class="mt-4 pt-2 d-flex align-items-center justify-content-center">
+              <div class="mt-4 pt-2 d-flex align-items-center justify-content-between">
                 <input data-mdb-ripple-init class="btn btn-warning btn-lg" type="submit" value="Enviar"
                   [disabled]="form.invalid" />
+                @if(showAlert){
+                <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+                  {{ alertMessage }}
+                  <button type="button" class="btn-close" (click)="showAlert = false" aria-label="Close"></button>
+                </div>
+                }
               </div>
             </form>
           </div>

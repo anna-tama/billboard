@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, FormsModule, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,6 +6,10 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { addDoc, collection } from 'firebase/firestore'; // Sigue importando las funciones de Firebase SDK normal
 import { Firestore } from '@angular/fire/firestore'; // ¡Importa Firestore desde @angular/fire/firestore!
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, Storage } from '@angular/fire/storage';
+import { RELIGIONS } from '../../constants/religions';
+import { ROOMS } from '../../constants/rooms';
+import { DESTINATIONS } from '../../constants/destination';
 
 @Component({
   selector: 'app-formulario',
@@ -17,55 +21,20 @@ import { Firestore } from '@angular/fire/firestore'; // ¡Importa Firestore desd
 })
 export class FormularioComponent implements OnInit {
 
+  alertMessage: string = '';
   form!: FormGroup;
   showOtherDestination = false;
-
-  religions = [
-    { id: 'cristianismo', label: 'Cristianismo', value: 'cristianismo' },
-    { id: 'budismo', label: 'Budismo', value: 'budismo' },
-    { id: 'judaismo', label: 'Judaísmo', value: 'judaismo' },
-    { id: 'evangelismo', label: 'Evangelismo', value: 'evangelismo' },
-    { id: 'umbandismo', label: 'Umbandismo', value: 'umbandismo' },
-    { id: 'none', label: 'Ninguno', value: 'none' },
-  ];
-
-  rooms = [
-    { id: 'salaA', label: 'Sala A' },
-    { id: 'salaB', label: 'Sala B' },
-  ];
-
-  destinations = [
-    { label: 'Crematorio: Burzaco' },
-    { label: 'Cementerio: Camposanto' },
-    { label: 'Crematorio: Cementerio Libertad' },
-    { label: 'Cementerio: Chacarita' },
-    { label: 'Cementerio: Colonial' },
-    { label: 'Cementerio: Flores' },
-    { label: 'Cementerio: Jardin de Paz Pilar' },
-    { label: 'Cementerio: Lar de Paz' },
-    { label: 'Cementerio: Las Praderas' },
-    { label: 'Cementerio: Libertad' },
-    { label: 'Crematorio: Lomas de Zamora' },
-    { label: 'Crematorio: Los Ceibos' },
-    { label: 'Cementerio: Los Ceibos' },
-    { label: 'Crematorio: Monte Paraiso' },
-    { label: 'Cementerio: Moron' },
-    { label: 'Crematorio: Moron' },
-    { label: 'Cementerio: Olivos' },
-    { label: 'Cementerio: Pablo Podesta', },
-    { label: 'Cementerio: Paraguay' },
-    { label: 'Cementerio: Parque Hurlingham', },
-    { label: 'Cementerio: Parque Iraola' },
-    { label: 'Cementerio: San Justo' },
-    { label: 'Cementerio: San Martin' },
-    { label: 'Crematorio: San Martin' },
-    { label: 'Cementerio: Villegas' },
-  ];
+  showAlert: boolean = false;
+  title: string = 'Registro Nuevo';  
+  destinations: any[] = DESTINATIONS;
+  religions: any[] = RELIGIONS;
+  rooms: any[] = ROOMS;
 
   router = inject(Router)
   fb = inject(FormBuilder)
   firestore = inject(Firestore);
-  users$: Observable<any[]> | undefined;
+  // storage = inject(Storage);
+
 
   constructor() { }
 
@@ -84,11 +53,11 @@ export class FormularioComponent implements OnInit {
       timeEntry: [currentTime, Validators.required],
       dateDeparture: [currentDate, Validators.required],
       timeDeparture: [currentTime, Validators.required],
-      destination: [this.destinations[0].label, Validators.required],
+      destination: [DESTINATIONS[0].label, Validators.required],
       newDestination: [''],
-      room: [this.rooms[0].label, Validators.required],
+      room: [ROOMS[0].label, Validators.required],
       imagenPerfil: [''],
-      religion: [this.religions[0].value, Validators.required],
+      religion: [RELIGIONS[0].value, Validators.required],
     });
   }
 
@@ -106,6 +75,9 @@ export class FormularioComponent implements OnInit {
   async enviar() {
     if (this.form.valid) {
       try {
+        console.log('try')
+        this.showAlertMessage('Agregado correctamente')
+
         const docRef = await addDoc(collection(this.firestore, "users"), {
           firstName: this.form.value.firstName,
           lastName: this.form.value.lastName,
@@ -118,12 +90,54 @@ export class FormularioComponent implements OnInit {
           imagenPerfil: this.form.value.imagenPerfil,
           religion: this.form.value.religion,
         });
+        // this.uploadFile();
+        console.log('docRef',docRef)
+
         this.formBuild();
       } catch (e) {
         console.error("Error al añadir documento: ", e);
       }
     }
   }
+
+  showAlertMessage(mensaje: string) {
+    this.alertMessage = mensaje;
+    this.showAlert = true;
+
+    // Ocultar automáticamente después de 3 segundos
+    setTimeout(() => {
+      this.showAlert = false;
+    }, 3000);
+  }
+
+  // async uploadFile() {
+  //   try {
+  //     // Asegúrate de que 'imagenPerfil' en tu formulario contenga un objeto File
+  //     const file: File = this.form.value.imagenPerfil;
+
+  //     if (!file) {
+  //       console.warn("No se seleccionó ningún archivo para subir.");
+  //       return null; // O lanza un error, dependiendo de tu lógica
+  //     }
+
+  //     const filePath = `uploads/${file.name}`;
+  //     // Usar 'this.storage' que fue inyectado
+  //     const fileReference = storageRef(this.storage, filePath); // <-- Aquí el cambio
+
+  //     // Sube el archivo
+  //     const snapshot = await uploadBytes(fileReference, file);
+  //     console.log('¡Archivo subido exitosamente!', snapshot);
+
+  //     // Obtiene la URL de descarga
+  //     const downloadURL = await getDownloadURL(snapshot.ref);
+  //     console.log('URL de descarga:', downloadURL);
+  //     return downloadURL;
+
+  //   } catch (error) {
+  //     console.error("Error al subir el archivo: ", error);
+  //     throw error; // Propaga el error para manejarlo en la UI
+  //   }
+  // }
 
   onDestinoChange(): void {
     const valor = this.form.get('destination')?.value;

@@ -4,8 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IDeceased } from '../../interfaces/deceased.interface';
 import { Observable } from 'rxjs';
-import { collection } from 'firebase/firestore'; // Sigue importando las funciones de Firebase SDK normal
-import { Firestore, collectionData } from '@angular/fire/firestore'; // ¡Importa Firestore desde @angular/fire/firestore!
+import { Firestore, collectionData,collection } from '@angular/fire/firestore'; // ¡Importa Firestore desde @angular/fire/firestore!
 
 @Component({
   selector: 'app-historic',
@@ -15,6 +14,7 @@ import { Firestore, collectionData } from '@angular/fire/firestore'; // ¡Import
   styleUrl: './historic.component.scss'
 })
 export class HistoricComponent implements OnInit {
+
   data: IDeceased[] | undefined = [];
 
   router = inject(Router)
@@ -35,5 +35,9 @@ export class HistoricComponent implements OnInit {
         data: item
       }
     });
+  }
+
+  goToForm(){
+     this.router.navigate(['/form']);
   }
 }

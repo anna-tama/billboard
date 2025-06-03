@@ -6,6 +6,7 @@ import { HistoricComponent } from './pages/historic/historic.component';
 
 export const routes: Routes = [
   { path: '', component: FormularioComponent },
+  { path: 'form', component: FormularioComponent },
   { path: 'cartelera', component: CarteleraComponent },
   { path: 'historic', component: HistoricComponent }
 ];
